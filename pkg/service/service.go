@@ -10,6 +10,7 @@ type Authorization interface {
 }
 
 type ProductList interface {
+	Create(product models.Product) (int, error)
 }
 
 type CartList interface {
@@ -21,5 +22,7 @@ type Service struct {
 }
 
 func NewService(repos *repository.Repository) *Service {
-	return &Service{}
+	return &Service{
+		ProductList: NewProductService(repos.Products),
+	}
 }

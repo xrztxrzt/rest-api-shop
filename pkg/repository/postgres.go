@@ -6,6 +6,10 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
+const (
+	ProductsTable = "Products"
+)
+
 type Config struct {
 	Host     string
 	Port     string

@@ -1,3 +1,10 @@
+CREATE TABLE Rating_list
+(   
+    id SERIAL PRIMARY KEY,
+    count int,
+    rate real
+);
+
 CREATE TABLE Products
 (
     id SERIAL  NOT NULL UNIQUE ,
@@ -6,13 +13,6 @@ CREATE TABLE Products
     description VARCHAR(255),
     category VARCHAR(55) NOT NULL,
     image VARCHAR(55),
-    ratingId SERIAL,
-    Foreign Key (ratingId) REFERENCES (Rating_list) ON DELETE CASCADE
+    rating_id int references Rating_list(id)
 );
 
-CREATE TABLE Rating_list
-(   
-    id SERIAL NOT NULL UNIQUE,
-    count int,
-    rate float64,
-);
