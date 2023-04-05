@@ -1,11 +1,16 @@
 package repository
 
-import "github.com/jmoiron/sqlx"
+import (
+	"rest-api/pkg/models"
+
+	"github.com/jmoiron/sqlx"
+)
 
 type Authorization interface {
 }
 
-type ProductList interface {
+type Products interface {
+	Create(product models.Product) (int, error)
 }
 
 type CartList interface {
@@ -13,10 +18,12 @@ type CartList interface {
 
 type Repository struct {
 	Authorization
-	ProductList
+	Products
 	CartList
 }
 
 func NewRepository(db *sqlx.DB) *Repository {
-	return &Repository{}
+	return &Repository{
+		Products: NewProductPostgres(db),
+	}
 }

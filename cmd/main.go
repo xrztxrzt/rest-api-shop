@@ -1,36 +1,44 @@
 package main
 
 import (
-	"log"
+	"os"
 	restapi "rest-api"
 	"rest-api/pkg/handler"
 	"rest-api/pkg/repository"
 	"rest-api/pkg/service"
 
-	_ "github.com/lib/pq"
+	"github.com/joho/godotenv"
+	"github.com/sirupsen/logrus"
 
+	_ "github.com/lib/pq"
 	"github.com/spf13/viper"
 )
 
-const (
+/*const (
 	url = "http://api.fakeshop-api.com"
-)
+)*/
 
 func main() {
+	logrus.SetFormatter(new(logrus.JSONFormatter))
+
 	if err := initConfig(); err != nil {
-		log.Fatalf("error initializing configs: %s", err.Error())
+		logrus.Fatalf("error initializing configs: %s", err.Error())
+	}
+
+	if err := godotenv.Load(); err != nil {
+		logrus.Fatalf("error loading env variables: %s", err.Error())
 	}
 
 	db, err := repository.NewPostgresDB(repository.Config{
-		Host:     "db",
-		Port:     "5432",
-		Username: "postgres",
-		Password: "qwerty",
-		DBName:   "postgres",
-		SSLMode:  "disable",
+		Host:     viper.GetString("db.host"),
+		Port:     viper.GetString("db.port"),
+		Username: viper.GetString("db.username"),
+		DBName:   viper.GetString("db.dbname"),
+		SSLMode:  viper.GetString("db.sslmode"),
+		Password: os.Getenv("DB_PASSWORD"),
 	})
 	if err != nil {
-		log.Fatalf("failed to initialize db: %s", err.Error())
+		logrus.Fatalf("failed to initialize db: %s", err.Error())
 	}
 	//зависимости
 	repos := repository.NewRepository(db)    //создаем репозиторий
@@ -39,7 +47,7 @@ func main() {
 
 	srv := new(restapi.Server)
 	if err := srv.Run(viper.GetString("port"), handlers.InitRoutes()); err != nil {
-		log.Fatalf("error occured while running http server: %s", err.Error())
+		logrus.Fatalf("error occured while running http server: %s", err.Error())
 	}
 
 }

@@ -27,19 +27,19 @@ func (h *Handler) InitRoutes() *gin.Engine { //инициализация все
 	{
 		cart := api.Group("/cart")
 		{
-			cart.POST("/", h.createProduct)
-			cart.GET("/", h.getAllProduct)
-			cart.GET("/:id", h.getSingleProduct)
-			cart.PUT("/:id", h.updateProduct)
-			cart.DELETE("/id", h.deleteProduct)
+			cart.POST("/", h.createCart)
+			cart.GET("/", h.getAllCart)
+			cart.GET("/:id", h.getSingleCart)
+			cart.PUT("/:id", h.updateCart)
+			cart.DELETE("/id", h.deleteCart)
 		}
 		product := api.Group("/product")
 		{
-			product.POST("/", h.createCart)
-			product.GET("/", h.getAllCart)
-			product.GET("/:id", h.getSingleCart)
-			product.PUT("/:id", h.updateCart)
-			product.DELETE("/:id", h.deleteCart)
+			product.POST("/", h.createProduct)
+			product.GET("/", h.getAllProduct)
+			product.GET("/:id", h.getSingleProduct)
+			product.PUT("/:id", h.updateProduct)
+			product.DELETE("/:id", h.deleteProduct)
 		}
 	}
 
