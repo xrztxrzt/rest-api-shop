@@ -18,26 +18,13 @@ func NewHandler(services *service.Service) *Handler {
 func (h *Handler) InitRoutes() *gin.Engine { //инициализация всех эндпоинтов
 	router := gin.New()
 
-	// userAuth := router.Group("/auth")
-	// {
-	// 	userAuth.POST("/sign-up") //регистрация
-	// 	userAuth.POST("/sign-in") //авторизация
-	// }
 	api := router.Group("/api")
 	{
-		cart := api.Group("/cart")
-		{
-			cart.POST("/", h.createCart)
-			cart.GET("/", h.getAllCart)
-			cart.GET("/:id", h.getSingleCart)
-			cart.PUT("/:id", h.updateCart)
-			cart.DELETE("/id", h.deleteCart)
-		}
 		product := api.Group("/product")
 		{
 			product.POST("/", h.createProduct)
 			product.GET("/", h.getAllProduct)
-			product.GET("/:id", h.getSingleProduct)
+			product.GET("/:id", h.getProductById)
 			product.PUT("/:id", h.updateProduct)
 			product.DELETE("/:id", h.deleteProduct)
 		}
