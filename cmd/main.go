@@ -1,7 +1,6 @@
 package main
 
 import (
-	"os"
 	restapi "rest-api"
 	"rest-api/pkg/handler"
 	"rest-api/pkg/repository"
@@ -35,11 +34,13 @@ func main() {
 		Username: viper.GetString("db.username"),
 		DBName:   viper.GetString("db.dbname"),
 		SSLMode:  viper.GetString("db.sslmode"),
-		Password: os.Getenv("DB_PASSWORD"),
+		//Password: os.Getenv("DB_PASSWORD"),
+		Password: viper.GetString("db.password"),
 	})
 	if err != nil {
 		logrus.Fatalf("failed to initialize db: %s", err.Error())
 	}
+
 	//зависимости
 	repos := repository.NewRepository(db)    //создаем репозиторий
 	services := service.NewService(repos)    //создаем сервис который зависит от репозитория

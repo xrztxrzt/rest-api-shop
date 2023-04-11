@@ -6,20 +6,16 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-type Authorization interface {
-}
-
 type Products interface {
 	Create(product models.Product) (int, error)
-}
-
-type CartList interface {
+	GetAll(product models.Product) ([]models.Product, error)
+	GetById(productId int) (models.Product, error)
+	Delete(productId int) error
+	Update(productId int, input models.UpdateProductInput) error
 }
 
 type Repository struct {
-	Authorization
-	Products
-	CartList
+	Products Products
 }
 
 func NewRepository(db *sqlx.DB) *Repository {

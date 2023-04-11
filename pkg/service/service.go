@@ -5,24 +5,21 @@ import (
 	"rest-api/pkg/repository"
 )
 
-type Authorization interface {
-	CreateUser(user models.User) (int, error)
-}
-
 type ProductList interface {
 	Create(product models.Product) (int, error)
+	GetAll(product models.Product) ([]models.Product, error)
+	GetById(productId int) (models.Product, error)
+	Delete(productId int) error
+	Update(productId int, input models.UpdateProductInput) error
 }
 
-type CartList interface {
-}
 type Service struct {
-	Authorization
 	ProductList
-	CartList
 }
 
 func NewService(repos *repository.Repository) *Service {
 	return &Service{
+
 		ProductList: NewProductService(repos.Products),
 	}
 }
