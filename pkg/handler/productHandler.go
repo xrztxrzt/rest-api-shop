@@ -9,6 +9,11 @@ import (
 )
 
 func (h *Handler) createProduct(c *gin.Context) {
+	userId, err := getUserId(c)
+	if err != nil {
+		return
+	}
+
 	var input models.Product
 
 	if err := c.BindJSON(&input); err != nil {
@@ -16,13 +21,15 @@ func (h *Handler) createProduct(c *gin.Context) {
 		return
 	}
 
-	productId, err := h.services.ProductList.Create(input)
+	id, err := h.services.ProductList.Create(userId, input)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, productId)
+	c.JSON(http.StatusOK, map[string]interface{}{
+		"id": id,
+	})
 }
 
 type getAllProductResponce struct {
@@ -30,7 +37,11 @@ type getAllProductResponce struct {
 }
 
 func (h *Handler) getAllProduct(c *gin.Context) {
-	products, err := h.services.ProductList.GetAll(models.Product{})
+	userId, err := getUserId(c)
+	if err != nil {
+		return
+	}
+	products, err := h.services.ProductList.GetAll(userId, models.Product{})
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
@@ -41,13 +52,17 @@ func (h *Handler) getAllProduct(c *gin.Context) {
 }
 
 func (h *Handler) getProductById(c *gin.Context) {
-	id, err := strconv.Atoi(c.Param("id"))
+	userId, err := getUserId(c)
+	if err != nil {
+		return
+	}
+	productId, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		newErrorResponse(c, http.StatusBadRequest, "invalid id param")
 		return
 	}
 
-	product, err := h.services.GetById(id)
+	product, err := h.services.GetById(userId, productId)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
@@ -58,8 +73,12 @@ func (h *Handler) getProductById(c *gin.Context) {
 }
 
 func (h *Handler) updateProduct(c *gin.Context) {
+	userId, err := getUserId(c)
+	if err != nil {
+		return
+	}
 
-	id, err := strconv.Atoi(c.Param("id"))
+	productId, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		newErrorResponse(c, http.StatusBadRequest, "invalid id param")
 		return
@@ -71,7 +90,7 @@ func (h *Handler) updateProduct(c *gin.Context) {
 		return
 	}
 
-	if err := h.services.Update(id, input); err != nil {
+	if err := h.services.Update(userId, productId, input); err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -80,13 +99,19 @@ func (h *Handler) updateProduct(c *gin.Context) {
 }
 
 func (h *Handler) deleteProduct(c *gin.Context) {
-	id, err := strconv.Atoi(c.Param("id"))
+	userId, err := getUserId(c)
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	productId, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		newErrorResponse(c, http.StatusBadRequest, "invalid id param")
 		return
 	}
 
-	err = h.services.Delete(id)
+	err = h.services.Delete(userId, productId)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return

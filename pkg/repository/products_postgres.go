@@ -16,48 +16,39 @@ func NewProductPostgres(db *sqlx.DB) *ProductPostgres {
 	return &ProductPostgres{db: db}
 }
 
-func (r *ProductPostgres) Create(product models.Product) (int, error) {
+func (r *ProductPostgres) Create(userId int, product models.Product) (int, error) {
 	tx, err := r.db.Begin()
-
 	if err != nil {
 		return 0, err
 	}
 
-	sqlRaw :=
-		`INSERT INTO Products (title, price, description, category, image) 
-		VALUES ($1, $2, $3, $4, $5)
-		RETURNING id`
+	var id int
 
-	id := 0
+	sqlRaw := fmt.Sprintf(`INSERT INTO %s (title, price, description, category, image) 
+  VALUES ($1, $2, $3, $4, $5)
+  RETURNING id`, ProductsTable)
 
 	err = tx.QueryRow(sqlRaw,
 		product.Title, product.Price, product.Description, product.Category, product.Image).Scan(&id)
-
 	if err != nil {
 		tx.Rollback()
 		return 0, err
 	}
 
-	if err := tx.Commit(); err != nil {
-		tx.Rollback()
-		return 0, err
-	}
 	return id, nil
 }
 
-func (r *ProductPostgres) GetAll(product models.Product) ([]models.Product, error) {
+func (r *ProductPostgres) GetAll(userId int, product models.Product) ([]models.Product, error) {
 	var products []models.Product
 
 	sqlRaw := `SELECT * FROM Products`
-	//sqlQuery := fmt.Sprintf(sqlRaw, ProductsTable)
-
 	err := r.db.Select(&products, sqlRaw)
 
 	return products, err
 
 }
 
-func (r *ProductPostgres) GetById(productId int) (models.Product, error) {
+func (r *ProductPostgres) GetById(userId int, productId int) (models.Product, error) {
 	var product models.Product
 
 	sqlRaw := `SELECT id, title, price, description, category, image  FROM Products WHERE id = %d`
@@ -71,7 +62,7 @@ func (r *ProductPostgres) GetById(productId int) (models.Product, error) {
 	return product, err
 }
 
-func (r *ProductPostgres) Delete(productId int) error {
+func (r *ProductPostgres) Delete(userId, productId int) error {
 	sqlRaw := `DELETE FROM Products WHERE id = %d`
 	sqlQuery := fmt.Sprintf(sqlRaw, productId)
 
@@ -80,7 +71,7 @@ func (r *ProductPostgres) Delete(productId int) error {
 	return err
 }
 
-func (r *ProductPostgres) Update(productId int, input models.UpdateProductInput) error {
+func (r *ProductPostgres) Update(userId, productId int, input models.UpdateProductInput) error {
 	setValues := make([]string, 0)
 	args := make([]interface{}, 0)
 	argId := 1
@@ -113,6 +104,12 @@ func (r *ProductPostgres) Update(productId int, input models.UpdateProductInput)
 	if input.Image != nil {
 		setValues = append(setValues, fmt.Sprintf("image=$%d", argId))
 		args = append(args, *input.Image)
+		argId++
+	}
+
+	if input.Done != nil {
+		setValues = append(setValues, fmt.Sprintf("done=$%d", argId))
+		args = append(args, *input.Done)
 		argId++
 	}
 
