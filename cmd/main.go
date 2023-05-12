@@ -13,10 +13,6 @@ import (
 	"github.com/spf13/viper"
 )
 
-/*const (
-	url = "http://api.fakeshop-api.com"
-)*/
-
 func main() {
 	logrus.SetFormatter(new(logrus.JSONFormatter))
 
@@ -34,28 +30,27 @@ func main() {
 		Username: viper.GetString("db.username"),
 		DBName:   viper.GetString("db.dbname"),
 		SSLMode:  viper.GetString("db.sslmode"),
-		//Password: os.Getenv("DB_PASSWORD"),
 		Password: viper.GetString("db.password"),
 	})
+
 	if err != nil {
 		logrus.Fatalf("failed to initialize db: %s", err.Error())
 	}
 
-	//зависимости
-	repos := repository.NewRepository(db)    //создаем репозиторий
-	services := service.NewService(repos)    //создаем сервис который зависит от репозитория
-	handlers := handler.NewHandler(services) //создаем обработчик который зависит от сервиса
+	repos := repository.NewRepository(db)
+	services := service.NewService(repos)
+	handlers := handler.NewHandler(services)
 
 	srv := new(restapi.Server)
+
 	if err := srv.Run(viper.GetString("port"), handlers.InitRoutes()); err != nil {
 		logrus.Fatalf("error occured while running http server: %s", err.Error())
 	}
 
 }
 
-// инициализация конфигурационных файлов
 func initConfig() error {
-	viper.SetConfigName("config") //name of config file
+	viper.SetConfigName("config")
 	viper.AddConfigPath("./configs/")
 	return viper.ReadInConfig()
 }

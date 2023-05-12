@@ -15,19 +15,24 @@ func NewHandler(services *service.Service) *Handler {
 	return &Handler{services: services}
 }
 
-func (h *Handler) InitRoutes() *gin.Engine { //инициализация всех эндпоинтов
+func (h *Handler) InitRoutes() *gin.Engine {
 	router := gin.New()
 
-	api := router.Group("/api")
+	auth := router.Group("/auth")
 	{
-		product := api.Group("/product")
-		{
-			product.POST("/", h.createProduct)
-			product.GET("/", h.getAllProduct)
-			product.GET("/:id", h.getProductById)
-			product.PUT("/:id", h.updateProduct)
-			product.DELETE("/:id", h.deleteProduct)
-		}
+		auth.POST("/create-role", h.createRole)
+		auth.POST("/sign-up", h.signUp)
+		auth.POST("/sign-in", h.signIn)
+
+	}
+
+	product := router.Group("/product")
+	{
+		product.GET("/", h.userIdentity, h.authorization, h.getAllProduct)
+		product.GET("/:id", h.userIdentity, h.authorization, h.getProductById)
+		product.POST("/", h.userIdentity, h.authorization, h.createProduct)
+		product.PUT("/:id", h.userIdentity, h.authorization, h.updateProduct)
+		product.DELETE("/:id", h.userIdentity, h.authorization, h.deleteProduct)
 	}
 
 	return router
