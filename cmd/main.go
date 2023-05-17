@@ -7,6 +7,7 @@ import (
 	"rest-api/pkg/service"
 
 	"github.com/joho/godotenv"
+	"github.com/nullseed/logruseq"
 	"github.com/sirupsen/logrus"
 
 	_ "github.com/lib/pq"
@@ -14,7 +15,10 @@ import (
 )
 
 func main() {
-	logrus.SetFormatter(new(logrus.JSONFormatter))
+	logger := logrus.New()
+	logger.SetFormatter(new(logrus.JSONFormatter))
+	logger.AddHook(logruseq.NewSeqHook("http://localhost:5341"))
+	logrus.Info("Start app...")
 
 	if err := initConfig(); err != nil {
 		logrus.Fatalf("error initializing configs: %s", err.Error())
@@ -39,7 +43,7 @@ func main() {
 
 	repos := repository.NewRepository(db)
 	services := service.NewService(repos)
-	handlers := handler.NewHandler(services)
+	handlers := handler.NewHandler(services, logger)
 
 	srv := new(restapi.Server)
 

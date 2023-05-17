@@ -8,6 +8,8 @@ import (
 )
 
 func (h *Handler) createRole(c *gin.Context) {
+	h.logger.Info("Handling createRole request")
+
 	var input models.Role
 
 	if err := c.BindJSON(&input); err != nil {
@@ -24,6 +26,8 @@ func (h *Handler) createRole(c *gin.Context) {
 }
 
 func (h *Handler) signUp(c *gin.Context) {
+	h.logger.Info("Handling signUp request")
+
 	var input models.User
 
 	if err := c.BindJSON(&input); err != nil {
@@ -46,6 +50,7 @@ type signInInput struct {
 }
 
 func (h *Handler) signIn(c *gin.Context) {
+	h.logger.Info("Handling signIn request")
 	var input signInInput
 
 	if err := c.BindJSON(&input); err != nil {
