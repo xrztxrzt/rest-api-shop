@@ -1,10 +1,14 @@
 package main
 
 import (
+	"context"
+	"os"
+	"os/signal"
 	restapi "rest-api"
 	"rest-api/pkg/handler"
 	"rest-api/pkg/repository"
 	"rest-api/pkg/service"
+	"syscall"
 
 	"github.com/joho/godotenv"
 	"github.com/nullseed/logruseq"
@@ -14,11 +18,21 @@ import (
 	"github.com/spf13/viper"
 )
 
+// @title Shop Rest API
+// @version 1.0
+// @description API Server for Shop
+
+// @host localhost:8080
+// @BasePath /
+
+// @securityDefenitions.apikey ApiKeyAuth
+// @in header
+// @name Authorization
+
 func main() {
 	logger := logrus.New()
 	logger.SetFormatter(new(logrus.JSONFormatter))
 	logger.AddHook(logruseq.NewSeqHook("http://localhost:5341"))
-	logrus.Info("Start app...")
 
 	if err := initConfig(); err != nil {
 		logrus.Fatalf("error initializing configs: %s", err.Error())
@@ -46,11 +60,28 @@ func main() {
 	handlers := handler.NewHandler(services, logger)
 
 	srv := new(restapi.Server)
+	go func() {
 
-	if err := srv.Run(viper.GetString("port"), handlers.InitRoutes()); err != nil {
-		logrus.Fatalf("error occured while running http server: %s", err.Error())
+		if err := srv.Run(viper.GetString("port"), handlers.InitRoutes()); err != nil {
+			logrus.Fatalf("error occured while running http server: %s", err.Error())
+		}
+	}()
+
+	logrus.Info("Start app...")
+
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGTERM, syscall.SIGINT)
+	<-quit
+
+	logrus.Print("App Shutting Down")
+
+	if err := srv.Shutdown(context.Background()); err != nil {
+		logrus.Errorf("error occured on server shutting down: %s", err.Error())
 	}
 
+	if err := db.Close(); err != nil {
+		logrus.Errorf("error occured on db connection close: %s", err.Error())
+	}
 }
 
 func initConfig() error {

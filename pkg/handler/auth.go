@@ -7,6 +7,18 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// @Summary CreateRole
+// @Tags Auth
+// @Description create role
+// @ID create-role
+// @Accept json
+// @Produce json
+// @Param input body models.Role true "role info"
+// @Success 200 {integer} integer 1
+// @Failure 400,404 {object} errorResponse
+// @Failure 500 {object} errorResponse
+// @Failure default {object} errorResponse
+// @Router /auth/create-role [post]
 func (h *Handler) createRole(c *gin.Context) {
 	h.logger.Info("Handling createRole request")
 
@@ -25,6 +37,18 @@ func (h *Handler) createRole(c *gin.Context) {
 	c.JSON(http.StatusOK, id)
 }
 
+// @Summary SignUp
+// @Tags Auth
+// @Description create account
+// @ID create-account
+// @Accept json
+// @Produce json
+// @Param input body models.User true "account info"
+// @Success 200 {integer} integer 1
+// @Failure 400,404 {object} errorResponse
+// @Failure 500 {object} errorResponse
+// @Failure default {object} errorResponse
+// @Router /auth/sign-up [post]
 func (h *Handler) signUp(c *gin.Context) {
 	h.logger.Info("Handling signUp request")
 
@@ -49,6 +73,18 @@ type signInInput struct {
 	RoleID   int    `json:"roleid"`
 }
 
+// @Summary SignIn
+// @Tags Auth
+// @Description login
+// @ID login
+// @Accept json
+// @Produce json
+// @Param input body signInInput true "credentials"
+// @Success 200 {string} string "token"
+// @Failure 400,404 {object} errorResponse
+// @Failure 500 {object} errorResponse
+// @Failure default {object} errorResponse
+// @Router /auth/sign-in [post]
 func (h *Handler) signIn(c *gin.Context) {
 	h.logger.Info("Handling signIn request")
 	var input signInInput

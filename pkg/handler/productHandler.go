@@ -8,6 +8,19 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// @Summary Create Product
+// @Security ApiKeyAuth
+// @Tags Products
+// @Description create Product
+// @ID create-product
+// @Accept json
+// @Produce json
+// @Param input body models.Product true "Product info"
+// @Success 200 {integer} integer 1
+// @Failure 400,404 {object} errorResponse
+// @Failure 500 {object} errorResponse
+// @Failure default {object} errorResponse
+// @Router /product [post]
 func (h *Handler) createProduct(c *gin.Context) {
 	userId, err := getUserId(c)
 	if err != nil {
@@ -36,11 +49,23 @@ func (h *Handler) createProduct(c *gin.Context) {
 	})
 }
 
-type getAllProductResponce struct {
+type getAllProductResponse struct {
 	Data []models.Product `json:"data"`
 }
 
-func (h *Handler) getAllProduct(c *gin.Context) {
+// @Summary Get All Products
+// @Security ApiKeyAuth
+// @Tags Products
+// @Description get all Products
+// @ID get-all-products
+// @Accept json
+// @Produce json
+// @Success 200 {object} getAllProductResponse
+// @Failure 400,404 {object} errorResponse
+// @Failure 500 {object} errorResponse
+// @Failure default {object} errorResponse
+// @Router /product [get]
+func (h *Handler) getAllProducts(c *gin.Context) {
 	userId, err := getUserId(c)
 	if err != nil {
 		return
@@ -53,11 +78,23 @@ func (h *Handler) getAllProduct(c *gin.Context) {
 	}
 	h.logger.Infof("Retrieved %d products", len(products))
 
-	c.JSON(http.StatusOK, getAllProductResponce{
+	c.JSON(http.StatusOK, getAllProductResponse{
 		Data: products,
 	})
 }
 
+// @Summary Get Product By ID
+// @Security ApiKeyAuth
+// @Tags Products
+// @Description get product by id
+// @ID get-product-by-id
+// @Accept json
+// @Produce json
+// @Success 200 {object} models.Product
+// @Failure 400,404 {object} errorResponse
+// @Failure 500 {object} errorResponse
+// @Failure default {object} errorResponse
+// @Router /product/:id [get]
 func (h *Handler) getProductById(c *gin.Context) {
 	userId, err := getUserId(c)
 	if err != nil {
@@ -110,7 +147,7 @@ func (h *Handler) updateProduct(c *gin.Context) {
 	}
 
 	h.logger.Infof("Product updated with ID: %d", productId)
-	c.JSON(http.StatusOK, statusResponce{"ok"})
+	c.JSON(http.StatusOK, statusResponse{"ok"})
 }
 
 func (h *Handler) deleteProduct(c *gin.Context) {
@@ -137,7 +174,7 @@ func (h *Handler) deleteProduct(c *gin.Context) {
 
 	h.logger.Infof("Product deleted with ID: %d", productId)
 
-	c.JSON(http.StatusOK, statusResponce{
+	c.JSON(http.StatusOK, statusResponse{
 		Status: "ok",
 	})
 

@@ -5,6 +5,11 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
+
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
+
+	_ "rest-api/docs"
 )
 
 // внедрение зависимостей
@@ -23,6 +28,8 @@ func NewHandler(services *service.Service, logger *logrus.Logger) *Handler {
 func (h *Handler) InitRoutes() *gin.Engine {
 	router := gin.New()
 
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+
 	auth := router.Group("/auth")
 	{
 		auth.POST("/create-role", h.createRole)
@@ -33,7 +40,7 @@ func (h *Handler) InitRoutes() *gin.Engine {
 
 	product := router.Group("/product")
 	{
-		product.GET("/", h.userIdentity, h.authorization, h.getAllProduct)
+		product.GET("/", h.userIdentity, h.authorization, h.getAllProducts)
 		product.GET("/:id", h.userIdentity, h.authorization, h.getProductById)
 		product.POST("/", h.userIdentity, h.authorization, h.createProduct)
 		product.PUT("/:id", h.userIdentity, h.authorization, h.updateProduct)
